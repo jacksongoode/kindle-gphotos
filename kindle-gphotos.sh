@@ -124,9 +124,9 @@ while true; do
   ./get_gphoto.py
   fbink -q -c -f -i photo.jpg -g w=-1,h=-1,dither=PASSTHROUGH
 
-  if [ ${BAT} -lt ${BATTERY_NOTIFY_TRESHOLD} ]; then
-    fbink -x 40 -y 5 -q "> Recharge <"
-  fi
+  # if [ ${BAT} -lt ${BATTERY_NOTIFY_TRESHOLD} ]; then
+  #   fbink -x 40 -y 5 -q "> Recharge <"
+  # fi
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): Battery level: $BAT" >>$LOG
 
   ### Enable powersave
