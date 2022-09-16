@@ -84,7 +84,7 @@ class KindleGPhotos:
             # Download photo
             url = str(media_item['baseUrl'])+'=w2048-h1024'
             photo = requests.get(url)
-
+        else:
             photo = requests.get("https://source.unsplash.com/random/600x800")
 
         open('photo.jpg', 'wb').write(photo.content)
