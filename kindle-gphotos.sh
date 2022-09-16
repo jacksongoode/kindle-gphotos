@@ -3,7 +3,7 @@
 PWD=$(pwd)
 LOG="/mnt/us/gphotos.log"
 BATTERY_NOTIFY_TRESHOLD=95
-SLEEP_MINUTES=30 #24h
+SLEEP_MINUTES=10 #24h
 FBINK="fbink -q"
 FONT="regular=/usr/java/lib/fonts/Palatino-Regular.ttf"
 
@@ -42,6 +42,7 @@ echo 0 >$FBROTATE
 $FBINK -w -c -f -m -t $FONT,size=20,top=410,bottom=0,left=0,right=0 "Starting gphotos..." >/dev/null 2>&1
 #echo 3 > $FBROTATE
 sleep 1
+
 ### Keep stopping stuff
 stop otaupd
 stop phd
@@ -76,18 +77,18 @@ lipc-set-prop com.lab126.powerd preventScreenSaver 1
 echo "$(date '+%Y-%m-%d_%H:%M:%S'): Entering main loop..." >>$LOG
 
 while true; do
+  NOW=$(date +%s)
+
+  SLEEP_SECONDS=$((60 * SLEEP_MINUTES))
+  WAKEUP_TIME=$((NOW + SLEEP_SECONDS))
+
+  ### Dim Backlight
+  echo -n 0 >$BACKLIGHT
+  echo "$(date '+%Y-%m-%d_%H:%M:%S'): Wake-up time set for $(date -d @${WAKEUP_TIME})" >>$LOG
 
   ### Disable CPU Powersave
   echo ondemand >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
-  NOW=$(date +%s)
-
-  let SLEEP_SECONDS=60*SLEEP_MINUTES
-  let WAKEUP_TIME=$NOW+SLEEP_SECONDS
-  echo "$(date '+%Y-%m-%d_%H:%M:%S'): Wake-up time set for $(date -d @${WAKEUP_TIME})" >>$LOG
-
-  ### Dim Backlight
-  echo -n 0 >$BACKLIGHT
   echo 0 >$FBROTATE
 
   lipc-set-prop com.lab126.cmd wirelessEnable 1
@@ -113,7 +114,7 @@ while true; do
       break
     fi
     sleep 1
-    let TRYCNT=$TRYCNT+1
+    TRYCNT=$((TRYCNT + 1))
   done
 
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): WIFI connected!" >>$LOG
@@ -122,20 +123,23 @@ while true; do
   $FBINK -x 40 -y 5 "Getting new image..."
   ./get_gphoto.py
   fbink -q -c -f -i photo.jpg -g w=-1,h=-1,dither=PASSTHROUGH
+
   if [ ${BAT} -lt ${BATTERY_NOTIFY_TRESHOLD} ]; then
     fbink -x 40 -y 5 -q "> Recharge <"
   fi
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): Battery level: $BAT" >>$LOG
 
-  ### Flight mode on...
-  lipc-set-prop com.lab126.cmd wirelessEnable 0
-
   ### Enable powersave
   echo powersave >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+
+  ### Flight mode on...
+  lipc-set-prop com.lab126.cmd wirelessEnable 0
 
   sleep 2
 
   ### Set wake up time to calculated time
+  echo "$(date '+%Y-%m-%d_%H:%M:%S')": Sleeping now... >>$LOG
+
   rtcwake -d /dev/rtc0 -m mem -s $SLEEP_SECONDS
   ### Go into Suspend to Memory (STR)
 done

@@ -94,7 +94,8 @@ class Method:
         result = self.service.auth_session.request(
             self.httpMethod, data=body, url=path, timeout=10, params=query_args
         )
-        log.debug("\nRESPONSE: %s\n%s", result.status_code, str(result.content))
+        log.debug("\nRESPONSE: %s\n%s",
+                  result.status_code, str(result.content))
 
         try:
             result.raise_for_status()
