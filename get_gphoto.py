@@ -14,9 +14,8 @@ log = logging.getLogger()
 logging.basicConfig(level=logging.WARNING)
 #log.setLevel(logging.NOTSET)
 
-
 ### Main app class
-class KindleGphotos:
+class KindleGPhotos:
     def __init__(self):
         self.auth: Authorize = None
 
@@ -31,7 +30,7 @@ class KindleGphotos:
             "https://photoslibrary.googleapis.com/$discovery" "/rest?version=v1"
         )
 
-        self.album_title = 'kindle-landscape-1'
+        self.album_title = 'Kindle'
         self.auth = Authorize(
             scope, credentials_file, secret_file, 3)
 
@@ -40,48 +39,56 @@ class KindleGphotos:
 
     def start(self):
         log.debug("Starting up...")
-        ### Get album list
-        mylist = self.google_photos_client.sharedAlbums.list.execute(pageSize=50).json()
+        
+        # Testing
+        gphotos = False
 
-        ### Get album ID
-        items_count = 0
-        for album in mylist['sharedAlbums']:
-            if 'title' in album.keys():
-                log.debug('"'+album['title']+'"')
-                if album['title'] == self.album_title:
-                    print(album['title'], album['mediaItemsCount'])
-                    items_count = int(album['mediaItemsCount'])
-                    album_id = album['id']
+        if gphotos:
+            ### Get album list
+            mylist = self.google_photos_client.sharedAlbums.list.execute(pageSize=50).json()
 
-        if not items_count:
-            quit()
+            ### Get album ID
+            items_count = 0
+            for album in mylist['sharedAlbums']:
+                if 'title' in album.keys():
+                    log.debug('"'+album['title']+'"')
+                    if album['title'] == self.album_title:
+                        print(album['title'], album['mediaItemsCount'])
+                        items_count = int(album['mediaItemsCount'])
+                        album_id = album['id']
 
-        ### get list of images
-        body = {
-                "pageSize": 50,
-                "albumId": album_id,
-#                "filters": {
-#                    "mediaTypeFilter": {"mediaTypes":  ["PHOTO"]},
-#                },
-            }
-        photo_list = self.google_photos_client.mediaItems.search.execute(body).json()
-        notfound = 1
-        while(notfound):
-            idx = randrange(items_count)
-            log.debug(idx)
-            if "image/jpeg"  in photo_list['mediaItems'][idx]['mimeType']:
-                notfound = 0
-                media_item = photo_list['mediaItems'][idx]
-        print(media_item['filename'], media_item['mimeType'])
+            if not items_count:
+                quit()
 
-        ### download photo
-        url = str(media_item['baseUrl'])+'=w2048-h1024'
-        photo = requests.get(url)
+            ### Get list of images
+            body = {
+                    "pageSize": 50,
+                    "albumId": album_id,
+    #                "filters": {
+    #                    "mediaTypeFilter": {"mediaTypes":  ["PHOTO"]},
+    #                },
+                }
+            photo_list = self.google_photos_client.mediaItems.search.execute(body).json()
+            notfound = 1
+            while(notfound):
+                idx = randrange(items_count)
+                log.debug(idx)
+                if photo_list['mediaItems'][idx]['mimeType'] in ["image/jpeg", "image/png"]:
+                    notfound = 0
+                    media_item = photo_list['mediaItems'][idx]
+            print(media_item['filename'], media_item['mimeType'])
+
+            ### Download photo
+            url = str(media_item['baseUrl'])+'=w2048-h1024'
+            photo = requests.get(url)
+            
+            photo = requests.get("https://source.unsplash.com/random/600x800")
+
         open('photo.jpg', 'wb').write(photo.content)
 
     def main(self):
-        self.setup()
+        # self.setup()
         self.start()
 
 if __name__ == '__main__':
-    KindleGphotos().main()
+    KindleGPhotos().main()

@@ -43,7 +43,7 @@ class Authorize:
         try:
             with secrets_file.open("r") as stream:
                 all_json = load(stream)
-            secrets = all_json["installed"]
+            secrets = all_json["web"]
             self.client_id = secrets["client_id"]
             self.client_secret = secrets["client_secret"]
             self.redirect_uri = secrets["redirect_uris"][0]
