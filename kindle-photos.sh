@@ -5,7 +5,7 @@ LOG="/mnt/us/photos.log"
 BATTERY_NOTIFY_TRESHOLD=95
 SLEEP_MINUTES=5 #24h
 FBINK="fbink -q"
-FONT="regular=/usr/java/lib/fonts/Palatino-Regular.ttf"
+FONT="regular=/usr/java/lib/fonts/Caecilia_LT_65_Medium.ttf"
 
 ### Uncomment/adjust according to your hardware
 # KT
@@ -103,14 +103,12 @@ while true; do
 
   ### Wait for WIFI connection
   TRYCNT=0
-  NOWIFI=0
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): Waiting for wifi interface to become ready..." >>$LOG
   while wait_wlan_connected; do
     if [ ${TRYCNT} -gt 30 ]; then
       ### Waited long enough
       echo "$(date '+%Y-%m-%d_%H:%M:%S'): No Wifi... ($TRYCNT)" >>$LOG
-      NOWIFI=1
-      $FBINK -y 5"No WiFi"
+      $FBINK -x 40 "No WiFi"
       break
     fi
     sleep 1
@@ -120,13 +118,13 @@ while true; do
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): WIFI connected!" >>$LOG
 
   BAT=$(gasgauge-info -c | tr -d "%")
-  $FBINK -y 5 "Loading..."
+  $FBINK -x 40 "Loading image"
   ./get_photo.py
   $FBINK -c -f -i photo.jpg -g w=-1,h=-1,dither=PASSTHROUGH
 
-  # if [ ${BAT} -lt ${BATTERY_NOTIFY_TRESHOLD} ]; then
-  #   fbink -x 40 -y 5 -q "> Recharge <"
-  # fi
+  if [ ${BAT} -lt ${BATTERY_NOTIFY_TRESHOLD} ]; then
+    $FBINK -x 40 "Recharge!"
+  fi
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): Battery level: $BAT" >>$LOG
 
   ### Enable powersave

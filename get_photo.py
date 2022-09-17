@@ -9,7 +9,7 @@ from random import randrange
 
 import flickrapi
 import requests
-from PIL import Image
+from PIL import Image, ImageOps
 
 from gphotos.authorize import Authorize
 from gphotos.restclient import RestClient
@@ -95,24 +95,53 @@ class KindlePhotos:
 
         elif self.provider == "flickr":
             user_id = "61021753@N02"
-            extras = 'url_sq,url_t,url_s,url_q,url_m,url_n,url_z,url_c,url_l,url_o'
+            extras = 'url_c, tags, description'  # Medium sized url
+            tags = 'flower, flowers, fruit'
+            bad_tags = ["ikebana", "enshu", "yenshu", "meiji", "catalogs"]
 
-            random.seed()
-            rand_page = random.randrange(1, 504, 1)  # 504 pages total
+            good_tags = False
+            while not good_tags:
+                random.seed()
+                rand_page = random.randrange(1, 258, 1)
+                print('Random page:', rand_page)
 
-            # Get random photo of flower
-            photos = self.flickr.photos.search(
-                user_id=user_id, page=rand_page, per_page=1,
-                tag_mode='all', tags='flower,flowers', extras=extras)
+                # Get random photo of flower
+                photos = self.flickr.photos.search(
+                    user_id=user_id, page=rand_page, per_page=25,
+                    tag_mode='any', orientation='portrait',
+                    tags=tags, extras=extras)
+                photos = photos['photos']
+                print('Number of pages:', photos['pages'])
+
+                # Check for photos
+                photo_list = photos['photo']
+                if len(photo_list) == 0:
+                    continue
+
+                # Iterate through page and check tags
+                for photo in photo_list:
+                    photo_tags = photo['tags'].split(' ')
+                    if any(p in photo_tags for p in bad_tags):
+                        print('bad tags')
+                        continue
+                    good_tags = True
+                    break
+
+                photo = random.choice(photo_list)
 
             # Get medium sized image
-            url = photos['photos']['photo'][0]['url_c']
+            url = photo['url_c']
 
         else:
             url = "https://source.unsplash.com/random/600x800"
 
+        print(url)
+
+        # Image processing
         open('photo.jpg', 'wb').write(requests.get(url).content)
-        img = Image.open('photo.jpg').convert('L')
+        img = Image.open('photo.jpg')
+        img = ImageOps.grayscale(img)
+        img = ImageOps.autocontrast(img)
         img.save('photo.jpg')
 
     def main(self):

@@ -1,8 +1,8 @@
 {
 	"items": [
 	{
-		"name": "Kindle Google Photos",
-		"action": "setsid ./kindle-gphotos.sh"
+		"name": "Kindle Photos",
+		"action": "setsid ./kindle-photos.sh"
 	}
 	]
 }
