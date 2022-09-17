@@ -92,10 +92,11 @@ class KindlePhotos:
 
         elif self.provider == "flickr":
             random.seed()
-            rand_page = random.randrange(1, 504, 1)
+            rand_page = random.randrange(1, 504, 1)  # 504 pages total
             extras = 'url_sq,url_t,url_s,url_q,url_m,url_n,url_z,url_c,url_l,url_o'
 
-            photos = flickr.photos.search(
+            # Get random photo of flower
+            photos = self.flickr.photos.search(
                 user_id=bhl_id, page=rand_page, per_page=1,
                 tag_mode='all', tags='flower,flowers', extras=extras)
 
