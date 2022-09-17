@@ -3,7 +3,7 @@
 PWD=$(pwd)
 LOG="/mnt/us/gphotos.log"
 BATTERY_NOTIFY_TRESHOLD=95
-SLEEP_MINUTES=10 #24h
+SLEEP_MINUTES=5 #24h
 FBINK="fbink -q"
 FONT="regular=/usr/java/lib/fonts/Palatino-Regular.ttf"
 
@@ -121,8 +121,8 @@ while true; do
 
   BAT=$(gasgauge-info -c | tr -d "%")
   $FBINK -x 40 -y 5 "Getting new image..."
-  ./get_gphoto.py
-  fbink -q -c -f -i photo.jpg -g w=-1,h=-1,dither=PASSTHROUGH
+  ./get_photo.py
+  $FBINK -c -f -i photo.jpg -g w=-1,h=-1,dither=PASSTHROUGH
 
   # if [ ${BAT} -lt ${BATTERY_NOTIFY_TRESHOLD} ]; then
   #   fbink -x 40 -y 5 -q "> Recharge <"
@@ -140,6 +140,6 @@ while true; do
   ### Set wake up time to calculated time
   echo "$(date '+%Y-%m-%d_%H:%M:%S')": Sleeping now... >>$LOG
 
-  rtcwake -d /dev/rtc0 -m mem -s $SLEEP_SECONDS
+  rtcwake -d /dev/rtc1 -m mem -s $SLEEP_SECONDS
   ### Go into Suspend to Memory (STR)
 done

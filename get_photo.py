@@ -15,36 +15,42 @@ logging.basicConfig(level=logging.WARNING)
 # log.setLevel(logging.NOTSET)
 
 
-class KindleGPhotos:
+class KindlePhotos:
     def __init__(self):
         self.auth: Authorize = None
+        self.provider = "flickr"
 
     def setup(self):
-        credentials_file = Path(".gphotos.token")
-        secret_file = Path("client_secret.json")
-        scope = [
-            "https://www.googleapis.com/auth/photoslibrary.readonly",
-            "https://www.googleapis.com/auth/photoslibrary.sharing",
-        ]
-        photos_api_url = (
-            "https://photoslibrary.googleapis.com/$discovery" "/rest?version=v1"
-        )
+        if self.provider == "google":
+            credentials_file = Path(".gphotos.token")
+            secret_file = Path("client_secret.json")
+            scope = [
+                "https://www.googleapis.com/auth/photoslibrary.readonly",
+                "https://www.googleapis.com/auth/photoslibrary.sharing",
+            ]
+            photos_api_url = (
+                "https://photoslibrary.googleapis.com/$discovery" "/rest?version=v1"
+            )
 
-        self.album_title = 'Kindle'
-        self.auth = Authorize(
-            scope, credentials_file, secret_file, 3)
+            self.album_title = 'Kindle'
+            self.auth = Authorize(
+                scope, credentials_file, secret_file, 3)
 
-        self.auth.authorize()
-        self.google_photos_client = RestClient(
-            photos_api_url, self.auth.session)
+            self.auth.authorize()
+            self.google_photos_client = RestClient(
+                photos_api_url, self.auth.session)
+
+        elif self.provider == "flickr":
+            api_key = u'f8b280fd14aa08758ef060dd232c6573'
+            api_secret = u'b8811cd287480495'
+
+            self.flickr = flickrapi.FlickrAPI(
+                api_key, api_secret, format='parsed-json')
 
     def start(self):
         log.debug("Starting up...")
 
-        # Testing
-        gphotos = False
-
-        if gphotos:
+        if self.provider == "google":
             # Get album list
             mylist = self.google_photos_client.sharedAlbums.list.execute(
                 pageSize=50).json()
@@ -79,20 +85,35 @@ class KindleGPhotos:
                 if photo_list['mediaItems'][idx]['mimeType'] in ["image/jpeg", "image/png"]:
                     notfound = 0
                     media_item = photo_list['mediaItems'][idx]
-            print(media_item['filename'], media_item['mimeType'])
 
             # Download photo
             url = str(media_item['baseUrl'])+'=w2048-h1024'
             photo = requests.get(url)
+
+        elif self.provider == "flickr":
+            random.seed()
+            rand_page = random.randrange(1, 504, 1)
+            extras = 'url_sq,url_t,url_s,url_q,url_m,url_n,url_z,url_c,url_l,url_o'
+
+            photos = flickr.photos.search(
+                user_id=bhl_id, page=rand_page, per_page=1,
+                tag_mode='all', tags='flower,flowers', extras=extras)
+
+            # Get medium sized image
+            url = photos['photos']['photo'][0]['url_c']
+
+            with open("photo.jpg", "wb") as f:
+                f.write(requests.get(url).content)
+
         else:
             photo = requests.get("https://source.unsplash.com/random/600x800")
 
         open('photo.jpg', 'wb').write(photo.content)
 
     def main(self):
-        # self.setup()
+        self.setup()
         self.start()
 
 
 if __name__ == '__main__':
-    KindleGPhotos().main()
+    KindlePhotos().main()
