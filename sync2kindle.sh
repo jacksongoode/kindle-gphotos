@@ -1,2 +1,2 @@
 #!/bin/sh
-rsync -zrvh --update * /Volumes/Kindle/extensions
+rsync -zrvh --update --delete * /Volumes/Kindle/extensions/kindle-gphotos/

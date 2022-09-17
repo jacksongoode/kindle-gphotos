@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PWD=$(pwd)
-LOG="/mnt/us/gphotos.log"
+LOG="/mnt/us/photos.log"
 BATTERY_NOTIFY_TRESHOLD=95
 SLEEP_MINUTES=5 #24h
 FBINK="fbink -q"
@@ -39,7 +39,7 @@ echo "$(date '+%Y-%m-%d_%H:%M:%S'): Starting up, killing framework et. al." >>$L
 stop lab126_gui
 ### Give an update to the outside world...
 echo 0 >$FBROTATE
-$FBINK -w -c -f -m -t $FONT,size=20,top=410,bottom=0,left=0,right=0 "Starting gphotos..." >/dev/null 2>&1
+$FBINK -w -c -f -m -t $FONT,size=20,top=410,bottom=0,left=0,right=0 "Starting photos..." >/dev/null 2>&1
 #echo 3 > $FBROTATE
 sleep 1
 
@@ -110,7 +110,7 @@ while true; do
       ### Waited long enough
       echo "$(date '+%Y-%m-%d_%H:%M:%S'): No Wifi... ($TRYCNT)" >>$LOG
       NOWIFI=1
-      $FBINK -x 40 -y 5"> No WiFi <"
+      $FBINK -y 5"No WiFi"
       break
     fi
     sleep 1
@@ -120,7 +120,7 @@ while true; do
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): WIFI connected!" >>$LOG
 
   BAT=$(gasgauge-info -c | tr -d "%")
-  $FBINK -x 40 -y 5 "Getting new image..."
+  $FBINK -y 5 "Loading..."
   ./get_photo.py
   $FBINK -c -f -i photo.jpg -g w=-1,h=-1,dither=PASSTHROUGH
 

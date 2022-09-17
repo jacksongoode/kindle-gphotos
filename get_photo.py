@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 # coding: utf8
 
-from pathlib import Path
-import requests
+import random
 import json
 import logging
+from pathlib import Path
 from random import randrange
+
+import flickrapi
+import requests
+from PIL import Image
 
 from gphotos.authorize import Authorize
 from gphotos.restclient import RestClient
@@ -88,28 +92,28 @@ class KindlePhotos:
 
             # Download photo
             url = str(media_item['baseUrl'])+'=w2048-h1024'
-            photo = requests.get(url)
 
         elif self.provider == "flickr":
+            user_id = "61021753@N02"
+            extras = 'url_sq,url_t,url_s,url_q,url_m,url_n,url_z,url_c,url_l,url_o'
+
             random.seed()
             rand_page = random.randrange(1, 504, 1)  # 504 pages total
-            extras = 'url_sq,url_t,url_s,url_q,url_m,url_n,url_z,url_c,url_l,url_o'
 
             # Get random photo of flower
             photos = self.flickr.photos.search(
-                user_id=bhl_id, page=rand_page, per_page=1,
+                user_id=user_id, page=rand_page, per_page=1,
                 tag_mode='all', tags='flower,flowers', extras=extras)
 
             # Get medium sized image
             url = photos['photos']['photo'][0]['url_c']
 
-            with open("photo.jpg", "wb") as f:
-                f.write(requests.get(url).content)
-
         else:
-            photo = requests.get("https://source.unsplash.com/random/600x800")
+            url = "https://source.unsplash.com/random/600x800"
 
-        open('photo.jpg', 'wb').write(photo.content)
+        open('photo.jpg', 'wb').write(requests.get(url).content)
+        img = Image.open('photo.jpg').convert('L')
+        img.save('photo.jpg')
 
     def main(self):
         self.setup()
