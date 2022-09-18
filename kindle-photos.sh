@@ -4,8 +4,8 @@ PWD=$(pwd)
 LOG="/mnt/us/photos.log"
 BATTERY_NOTIFY_TRESHOLD=95
 SLEEP_MINUTES=5 #24h
-FBINK="fbink -q"
 FONT="regular=/usr/java/lib/fonts/Caecilia_LT_65_Medium.ttf"
+FBINK="fbink -q -t $FONT"
 
 ### Uncomment/adjust according to your hardware
 # KT
@@ -39,7 +39,7 @@ echo "$(date '+%Y-%m-%d_%H:%M:%S'): Starting up, killing framework et. al." >>$L
 stop lab126_gui
 ### Give an update to the outside world...
 echo 0 >$FBROTATE
-$FBINK -w -c -f -m -t $FONT,size=20,top=410,bottom=0,left=0,right=0 "Starting photos..." >/dev/null 2>&1
+fbink -q -w -c -f -m -M -t $FONT,size=18 "Starting photos..." >/dev/null 2>&1
 #echo 3 > $FBROTATE
 sleep 1
 
@@ -108,7 +108,7 @@ while true; do
     if [ ${TRYCNT} -gt 30 ]; then
       ### Waited long enough
       echo "$(date '+%Y-%m-%d_%H:%M:%S'): No Wifi... ($TRYCNT)" >>$LOG
-      $FBINK -x 40 "No WiFi"
+      $FBINK -x 2 -y 4 "No WiFi"
       break
     fi
     sleep 1
@@ -118,12 +118,12 @@ while true; do
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): WIFI connected!" >>$LOG
 
   BAT=$(gasgauge-info -c | tr -d "%")
-  $FBINK -x 40 "Loading image"
+  $FBINK -x 2 -y 4 "Loading image..."
   ./get_photo.py
-  $FBINK -c -f -i photo.jpg -g w=-1,h=-1,dither=PASSTHROUGH
+  fbink -q -c -f -i photo.jpg -g w=-1,h=-1,dither=PASSTHROUGH
 
   if [ ${BAT} -lt ${BATTERY_NOTIFY_TRESHOLD} ]; then
-    $FBINK -x 40 "Recharge!"
+    $FBINK -o -x 2 -y 2 "$BAT%"
   fi
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): Battery level: $BAT" >>$LOG
 
