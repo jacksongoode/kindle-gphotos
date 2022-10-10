@@ -2,8 +2,8 @@
 
 PWD=$(pwd)
 LOG="/mnt/us/photos.log"
-BATTERY_NOTIFY_TRESHOLD=95
-SLEEP_MINUTES=5 #24h
+BATTERY_NOTIFY_TRESHOLD=15
+SLEEP_MINUTES=60 #24h
 FONT="regular=/usr/java/lib/fonts/Caecilia_LT_65_Medium.ttf"
 FBINK="fbink -q"
 
@@ -108,7 +108,7 @@ while true; do
     if [ ${TRYCNT} -gt 30 ]; then
       ### Waited long enough
       echo "$(date '+%Y-%m-%d_%H:%M:%S'): No Wifi! ($TRYCNT)" >>$LOG
-      $FBINK -o -t $FONT,top=24,left=12 "No WiFi!"
+      $FBINK -o -t $FONT,top=20,left=12 "No WiFi!"
       break
     fi
     sleep 1
@@ -116,14 +116,13 @@ while true; do
   done
 
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): WIFI connected!" >>$LOG
-
   BAT=$(gasgauge-info -c | tr -d "%")
-  $FBINK -t $FONT,top=12,left=-12 "Fetching new image..."
+  $FBINK -o -t $FONT,top=6,left=-240 "Fetching new image..."
   ./get_photo.py
   $FBINK -c -f -i photo.jpg -g w=-1,h=-1,dither=PASSTHROUGH
 
   if [ ${BAT} -lt ${BATTERY_NOTIFY_TRESHOLD} ]; then
-    $FBINK -o -t $FONT,top=12,left=12 "$BAT%"
+    $FBINK -o -t $FONT,top=6,left=12 "$BAT%"
   fi
   echo "$(date '+%Y-%m-%d_%H:%M:%S'): Battery level: $BAT" >>$LOG
 
@@ -138,6 +137,6 @@ while true; do
   ### Set wake up time to calculated time
   echo "$(date '+%Y-%m-%d_%H:%M:%S')": Sleeping now... >>$LOG
 
-  rtcwake -d /dev/rtc1 -m mem -s $SLEEP_SECONDS
   ### Go into Suspend to Memory (STR)
+  rtcwake -d /dev/rtc1 -m mem -s $SLEEP_SECONDS
 done

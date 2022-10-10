@@ -122,7 +122,6 @@ class KindlePhotos:
                 for photo in photo_list:
                     photo_tags = photo['tags'].split(' ')
                     if any(p in photo_tags for p in bad_tags):
-                        print('bad tags')
                         continue
                     good_tags = True
                     break
