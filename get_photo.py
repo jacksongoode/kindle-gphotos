@@ -45,11 +45,10 @@ class KindlePhotos:
                 photos_api_url, self.auth.session)
 
         elif self.provider == "flickr":
-            api_key = u'f8b280fd14aa08758ef060dd232c6573'
-            api_secret = u'b8811cd287480495'
+            flickr_json = json.load(open("flickr.json"))
 
             self.flickr = flickrapi.FlickrAPI(
-                api_key, api_secret, format='parsed-json')
+                flickr_json['key'], flickr_json['secret'], format='parsed-json')
 
     def start(self):
         log.debug("Starting up...")
@@ -94,10 +93,12 @@ class KindlePhotos:
             url = str(media_item['baseUrl'])+'=w2048-h1024'
 
         elif self.provider == "flickr":
-            user_id = "61021753@N02"
             extras = 'url_c, tags, description'  # Medium sized url
-            tags = 'flower, flowers, fruit'
-            bad_tags = ["ikebana", "enshu", "yenshu", "meiji", "catalogs"]
+            flickr_json = json.load(open("flickr.json"))
+
+            user_id = flickr_json['user_id']
+            tags = (', ').join(flickr_json['tags'])
+            bad_tags = flickr_json['bad_tags']
 
             good_tags = False
             while not good_tags:
