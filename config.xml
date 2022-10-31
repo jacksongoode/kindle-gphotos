@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension>
     <information>
-        <name>Kindle Google Photos</name>
+        <name>Kindle Photos</name>
         <version>1.0</version>
-        <author>Jackson</author>
+        <author>Jackson Goode</author>
         <id>KAUL-SELF-MENU-ADD-ONS</id>
     </information>
     <menus>
