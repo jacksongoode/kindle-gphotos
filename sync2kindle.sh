@@ -1,2 +1,2 @@
 #!/bin/sh
-rsync -zrvh --update --delete * /Volumes/Kindle/extensions/kindle-photos/
+rsync -zrvh --update --delete ./* /Volumes/Kindle/extensions/kindle-photos/

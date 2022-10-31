@@ -5,3 +5,4 @@ __pycache__/
 .gphotos.token
 client_secret.json
 photo.jpg
+flickr.json

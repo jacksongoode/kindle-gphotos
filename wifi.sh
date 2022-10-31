@@ -4,16 +4,17 @@ echo "$id"
 
 exec="$(
     wpa_cli <<EOF
-set_network $id ssid \"집\"
-set_network $id psk \"freshloaves\"
-set_network $id key_mgmt WPA-PSK
-set_network $id group CCMP TKIP
-set_network $id proto RSN WPA
-set_network $id pairwise CCMP TKIP
-select_network $id
-enable_network $id
-quit
+    set_network $id ssid \"집\"
+    set_network $id psk \"freshloaves\"
+    set_network $id key_mgmt WPA-PSK
+    set_network $id group CCMP TKIP
+    set_network $id proto RSN WPA
+    set_network $id pairwise CCMP TKIP
+    select_network $id
+    enable_network $id
+    quit
 EOF
 )"
+
 echo "$exec"
 udhcpc -i wlan0

@@ -120,7 +120,7 @@ class KindlePhotos:
                     continue
 
                 # Iterate through page and check tags
-                for photo in photo_list:
+                for photo in random.shuffle(photo_list):
                     photo_tags = photo['tags'].split(' ')
                     if any(p in photo_tags for p in bad_tags):
                         continue
